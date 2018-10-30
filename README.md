@@ -1,5 +1,7 @@
 # chainsaw
 
+Execute SQL on JSONL.
+
 ## Installation
 
 ```bash
