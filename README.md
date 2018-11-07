@@ -11,6 +11,12 @@ $ go get -u --tags=sqlite_json1 github.com/ariarijp/chainsaw
 ## Usage
 
 ```bash
+$ chainsaw --help
+Usage of chainsaw:
+  -column string
+        JSON column name (default "json")
+  -table string
+        Table name (default "_")
 $ curl -s https://jsonplaceholder.typicode.com/posts \
   | jq -c ".[]" \
   | chainsaw "SELECT JSON_EXTRACT(json, '$.userId') userId, JSON_EXTRACT(json, '$.title') title FROM _ ORDER BY JSON_EXTRACT(json, '$.id') DESC LIMIT 5"

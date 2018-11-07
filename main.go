@@ -11,8 +11,9 @@ import (
 	"os"
 )
 
-func createTempTable(fn string, db *sql.DB) {
-	_, err := db.Exec("CREATE TABLE _ (json JSON);")
+func createTempTable(fn string, db *sql.DB, tblName string, colName string) {
+	sql_ := fmt.Sprintf("CREATE TABLE %s (%s JSON);", tblName, colName)
+	_, err := db.Exec(sql_)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,7 +32,8 @@ func createTempTable(fn string, db *sql.DB) {
 	sc := bufio.NewScanner(fp)
 	for sc.Scan() {
 		l := sc.Text()
-		_, err = db.Exec("INSERT INTO _ (json) VALUES ('" + l + "');")
+		sql_ = fmt.Sprintf("INSERT INTO %s (%s) VALUES ('%s');", tblName, colName, l)
+		_, err = db.Exec(sql_)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -75,6 +77,9 @@ func rowToStrings(data []interface{}) []string {
 func main() {
 	var fn, sql_ string
 
+	tblName := flag.String("table", "_", "Table name")
+	colName := flag.String("column", "json", "JSON column name")
+
 	flag.Parse()
 	if (flag.NArg() == 1) {
 		sql_ = flag.Arg(0)
@@ -91,7 +96,7 @@ func main() {
 	}
 	defer db.Close()
 
-	createTempTable(fn, db)
+	createTempTable(fn, db, *tblName, *colName)
 
 	rows, err := db.Query(sql_)
 	if err != nil {
@@ -106,6 +111,7 @@ func main() {
 
 	tbl := tablewriter.NewWriter(os.Stdout)
 	tbl.SetHeader(cols)
+	tbl.SetColWidth(80)
 
 	for rows.Next() {
 		data := fetch(rows, &cols)
